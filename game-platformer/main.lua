@@ -98,15 +98,6 @@ function love.keypressed(key)
 	end
 end
 
-function love.mousepressed(x, y, button)
-	if button == 1 then
-		local colliders = world:queryCircleArea(x, y, 200, { 'Platform', 'Danger' })
-		for i, c in ipairs(colliders) do
-			c:destroy()
-		end
-	end
-end
-
 function spawnPlatform(x, y, width, height)
 	if width > 0 and height > 0 then
 		local platform = world:newRectangleCollider(x, y, width, height, { collision_class = "Platform" })

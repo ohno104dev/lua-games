@@ -1,0 +1,21 @@
+{
+  "name": "lua-games",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build:games": "./scripts/build-love-web.sh",
+    "build:top-down-shooter": "./scripts/build-top-down-shooter-web.sh",
+    "build:shooting-gallery": "./scripts/build-shooting-gallery-web.sh",
+    "build:platformer": "./scripts/build-platformer-web.sh",
+    "dev": "npm run build:games && vite",
+    "build": "npm run build:games && ./scripts/build-static-site.sh",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.3"
+  }
+}
