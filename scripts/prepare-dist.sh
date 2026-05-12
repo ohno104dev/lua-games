@@ -7,6 +7,6 @@ DIST_DIR="$ROOT_DIR/dist"
 rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR"
 
-cp -R "$ROOT_DIR/public"/. "$DIST_DIR"
+cp "$ROOT_DIR/web/_headers" "$DIST_DIR/_headers"
 
-echo "Built static site -> $DIST_DIR"
+echo "Prepared dist -> $DIST_DIR"

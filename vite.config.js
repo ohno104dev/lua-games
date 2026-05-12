@@ -24,6 +24,8 @@ function serveGameDirectoryIndexes() {
 
 export default defineConfig({
   plugins: [serveGameDirectoryIndexes()],
+  root: 'dist',
+  publicDir: false,
   server: {
     host: '127.0.0.1',
     headers: {

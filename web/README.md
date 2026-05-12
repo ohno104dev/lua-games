@@ -41,13 +41,13 @@ public/games/
 
 ## Vue / Cloudflare Pages
 
-Local development builds games into `public/games` before running Vite:
+Local development builds games into `dist/games` before running Vite:
 
 ```bash
 npm run dev
 ```
 
-Production builds package games into `public/games` and copy `public` to `dist` for Cloudflare Pages:
+Production builds prepare `dist/_headers` and package games into `dist/games` for Cloudflare Pages:
 
 ```bash
 npm run build
@@ -63,7 +63,7 @@ Build output directory: dist
 Embed each game from Vue with an iframe:
 
 ```html
-<iframe src="/games/game-top-down-shooter/"></iframe>
+<iframe src="/games/top-down-shooter/"></iframe>
 ```
 
 The final deployed structure intentionally does not include a root `index.html`.
@@ -72,11 +72,11 @@ It should include:
 ```text
 dist/
   _headers
-  games/game-top-down-shooter/index.html
-  games/game-top-down-shooter/game-top-down-shooter.love
-  games/game-top-down-shooter/player.js
-  games/game-top-down-shooter/11.5/love.js
-  games/game-top-down-shooter/11.5/love.wasm
+  games/top-down-shooter/index.html
+  games/top-down-shooter/top-down-shooter.love
+  games/top-down-shooter/player.js
+  games/top-down-shooter/11.5/love.js
+  games/top-down-shooter/11.5/love.wasm
 ```
 
 ## Server Headers

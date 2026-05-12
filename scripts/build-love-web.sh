@@ -2,9 +2,17 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUTPUT_DIR="${OUTPUT_DIR:-$ROOT_DIR/public/games}"
+OUTPUT_DIR="${OUTPUT_DIR:-$ROOT_DIR/dist/games}"
 TEMPLATE_DIR="$ROOT_DIR/web/templates"
 LOVE_VERSION="11.5"
+
+case "$OUTPUT_DIR" in
+	/*)
+		;;
+	*)
+		OUTPUT_DIR="$ROOT_DIR/$OUTPUT_DIR"
+		;;
+esac
 
 GAMES=(
 	"game-top-down-shooter"
@@ -27,6 +35,10 @@ game_size() {
 			printf '800 600'
 			;;
 	esac
+}
+
+game_slug() {
+	printf '%s' "$1" | sed 's/^game-//'
 }
 
 find_lovejs_dir() {
@@ -71,10 +83,12 @@ write_index() {
 	local height
 	local love_file
 	local template_file
+	local slug
 
 	title="$(printf '%s' "$game" | sed 's/game-//; s/-/ /g')"
 	read -r width height <<< "$(game_size "$game")"
-	love_file="$game.love"
+	slug="$(game_slug "$game")"
+	love_file="$slug.love"
 
 	if [[ -f "$TEMPLATE_DIR/$game.html" ]]; then
 		template_file="$TEMPLATE_DIR/$game.html"
@@ -95,9 +109,14 @@ write_index() {
 build_game() {
 	local game="$1"
 	local game_dir="$ROOT_DIR/$game"
-	local game_dist_dir="$OUTPUT_DIR/$game"
-	local love_file="$game_dist_dir/$game.love"
+	local slug
+	local game_dist_dir
+	local love_file
 	local lovejs_dir="$2"
+
+	slug="$(game_slug "$game")"
+	game_dist_dir="$OUTPUT_DIR/$slug"
+	love_file="$game_dist_dir/$slug.love"
 
 	if [[ ! -f "$game_dir/main.lua" ]]; then
 		echo "Skipping $game: missing main.lua" >&2
@@ -141,7 +160,7 @@ Local test:
   npm run dev
 
 Open:
-  http://localhost:5173/games/game-top-down-shooter/
-  http://localhost:5173/games/game-shooting-gallery/
-  http://localhost:5173/games/game-platformer/
+  http://localhost:5173/games/top-down-shooter/
+  http://localhost:5173/games/shooting-gallery/
+  http://localhost:5173/games/platformer/
 MSG

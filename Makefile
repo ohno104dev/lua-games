@@ -1,4 +1,4 @@
-.PHONY: install dev build preview build-games build-top-down-shooter build-shooting-gallery build-platformer clean
+.PHONY: install dev build preview prepare-dist build-games build-top-down-shooter build-shooting-gallery build-platformer clean
 
 install:
 	npm install
@@ -11,6 +11,9 @@ build:
 
 preview:
 	npm run preview
+
+prepare-dist:
+	npm run prepare:dist
 
 build-games:
 	npm run build:games
@@ -25,4 +28,4 @@ build-platformer:
 	npm run build:platformer
 
 clean:
-	rm -rf dist public/games
+	rm -rf dist public
