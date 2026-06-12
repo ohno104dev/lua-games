@@ -12,7 +12,7 @@ function love.load()
 	player = {}
 	player.x = love.graphics.getWidth() / 2
 	player.y = love.graphics.getHeight() / 2
-	player.speed = 180
+	player.speed = 260
 	player.damage = false
 
 	mainFont = love.graphics.newFont(30)
@@ -23,7 +23,7 @@ function love.load()
 
 	score = 0
 	gameState = 1
-	maxTime = 1.8
+	maxTime = 3
 	timer = maxTime
 end
 
@@ -76,7 +76,11 @@ function love.update(dt)
 				u.dead = true
 				b.dead = true
 
-				score = score + u.kind
+				score = score + u.kind * 50
+				if u.kind == 3 then
+					maxTime = maxTime + 0.3
+					timer = math.max(timer, maxTime)
+				end
 			end
 		end
 	end
@@ -142,7 +146,7 @@ function love.draw()
 	end
 
 	for i, b in ipairs(bullets) do 
-		love.graphics.draw(sprites.bullet, b.x, b.y, nil, 0.5, nil, sprites.bullet:getWidth()/2,sprites.bullet:getHeight()/2)
+		love.graphics.draw(sprites.bullet, b.x, b.y, nil, 0.3, 0.3, sprites.bullet:getWidth()/2,sprites.bullet:getHeight()/2)
 	end
 
 	for i =#bullets, 1, -1 do
@@ -168,7 +172,7 @@ function love.mousepressed(x, y, button)
 		timer = maxTime
 		score = 0
 		player.damage = false
-		player.speed = 180
+		player.speed = 260
 	end
 end
 
@@ -186,7 +190,7 @@ function swapnUfo()
 	ufo.x = 0
 	ufo.y = 0
 	ufo.kind = (math.random(0,3) % 3) + 1
-	ufo.speed = 100 + math.random(10) * 20
+	ufo.speed = 100 + math.random(10) * 30
 	ufo.dead = false
 
 	local side = math.random(1, 4)
@@ -211,7 +215,7 @@ function spawnBullet()
 	local bullet = {}
 	bullet.x = player.x
 	bullet.y = player.y
-	bullet.speed = 500
+	bullet.speed = 800
 	bullet.dead = false
 	bullet.direction = playerMouseAngle()
 	table.insert(bullets, bullet)
