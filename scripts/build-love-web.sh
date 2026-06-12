@@ -17,7 +17,7 @@ esac
 GAMES=(
 	"game-top-down-shooter"
 	"game-shooting-gallery"
-	"game-platformer"
+	"game-lili-run"
 )
 
 game_size() {
@@ -28,8 +28,8 @@ game_size() {
 		game-shooting-gallery)
 			printf '800 600'
 			;;
-		game-platformer)
-			printf '1000 768'
+		game-lili-run)
+			printf '960 540'
 			;;
 		*)
 			printf '800 600'
@@ -162,5 +162,5 @@ Local test:
 Open:
   http://localhost:5173/games/top-down-shooter/
   http://localhost:5173/games/shooting-gallery/
-  http://localhost:5173/games/platformer/
+  http://localhost:5173/games/lili-run/
 MSG

@@ -21,7 +21,7 @@ Or use the per-game wrappers:
 ```bash
 npm run build:top-down-shooter
 npm run build:shooting-gallery
-npm run build:platformer
+npm run build:lili-run
 ```
 
 The same commands are also available through Make:
@@ -30,7 +30,7 @@ The same commands are also available through Make:
 make build-games
 make build-top-down-shooter
 make build-shooting-gallery
-make build-platformer
+make build-lili-run
 ```
 
 The local build output is written to:
@@ -104,7 +104,7 @@ To override one game, create a matching template:
 ```text
 web/templates/game-top-down-shooter.html
 web/templates/game-shooting-gallery.html
-web/templates/game-platformer.html
+web/templates/game-lili-run.html
 ```
 
 Supported placeholders:

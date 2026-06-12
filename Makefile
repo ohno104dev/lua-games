@@ -1,4 +1,4 @@
-.PHONY: install dev build preview prepare-dist build-games build-top-down-shooter build-shooting-gallery build-platformer clean
+.PHONY: install dev build preview prepare-dist build-games build-top-down-shooter build-shooting-gallery build-lili-run clean
 
 install:
 	npm install
@@ -24,8 +24,8 @@ build-top-down-shooter:
 build-shooting-gallery:
 	npm run build:shooting-gallery
 
-build-platformer:
-	npm run build:platformer
+build-lili-run:
+	npm run build:lili-run
 
 clean:
 	rm -rf dist public
