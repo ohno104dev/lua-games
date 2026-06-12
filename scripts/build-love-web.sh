@@ -126,10 +126,32 @@ build_game() {
 	rm -rf "$game_dist_dir"
 	mkdir -p "$game_dist_dir"
 
-	(
-		cd "$game_dir"
-		zip -9 -r "$love_file" . -x "*.DS_Store" ".gitignore"
-	)
+	if command -v zip >/dev/null 2>&1; then
+		(
+			cd "$game_dir"
+			zip -9 -r "$love_file" . -x "*.DS_Store" ".gitignore"
+		)
+	else
+		python3 - "$game_dir" "$love_file" <<'PY'
+import os
+import sys
+import zipfile
+
+game_dir, love_file = sys.argv[1], sys.argv[2]
+exclude = {".gitignore", ".DS_Store"}
+
+with zipfile.ZipFile(love_file, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+    for root, _, files in os.walk(game_dir):
+        for name in files:
+            if name in exclude:
+                continue
+            full_path = os.path.join(root, name)
+            rel_path = os.path.relpath(full_path, game_dir)
+            if any(part == ".DS_Store" for part in rel_path.split(os.sep)):
+                continue
+            zf.write(full_path, rel_path)
+PY
+	fi
 
 	copy_lovejs "$lovejs_dir" "$game_dist_dir"
 	write_index "$game" "$game_dist_dir"
