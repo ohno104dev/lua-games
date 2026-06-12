@@ -42,18 +42,18 @@ function love.update(dt)
 		supermanDt = supermanDt +dt
 		targetDt = targetDt +dt
 
-		if targetDt > 0.3 then
+		if targetDt > 0.8 then
 			target.x = math.random(target.radius, love.graphics.getWidth() - target.radius)
 			target.y = math.random(target.radius, love.graphics.getHeight() - target.radius)
 			targetDt = 0
 		end
-		if pigeonDt > 0.3 then
+		if pigeonDt > 0.6 then
 			pigeon.x = math.random(pigeon.radius, love.graphics.getWidth() - pigeon.radius)
 			pigeon.y = math.random(pigeon.radius, love.graphics.getHeight() - pigeon.radius)
 			pigeonDt = 0
 		end
 
-		if supermanDt > 0.2 then
+		if supermanDt > 0.4 then
 			superman.x = math.random(superman.radius, love.graphics.getWidth() - superman.radius)
 			superman.y = math.random(superman.radius, love.graphics.getHeight() - superman.radius)
 			supermanDt = 0
@@ -91,19 +91,20 @@ function love.mousepressed(x, y, button, istouch, presses)
 		local mouseToPigeon = distanceBetween(x, y, pigeon.x,pigeon.y)
 		local mouseToSuperman = distanceBetween(x, y, superman.x,superman.y)
 		if mouseToTarget < target.radius then
-			score = score + 1
+			score = score + 50
 			target.x = math.random(target.radius, love.graphics.getWidth() - target.radius)
 			target.y = math.random(target.radius, love.graphics.getHeight() - target.radius)
 		end
 
 		if mouseToPigeon < pigeon.radius then
-			score = score - 2
+			score = score - 100
 			pigeon.x = math.random(pigeon.radius, love.graphics.getWidth() - pigeon.radius)
 			pigeon.y = math.random(pigeon.radius, love.graphics.getHeight() - pigeon.radius)
 		end
 
 		if mouseToSuperman < superman.radius then
-			score = score + 5
+			score = score + 100
+			timer = timer + 3
 			superman.x = math.random(superman.radius, love.graphics.getWidth() - superman.radius)
 			superman.y = math.random(superman.radius, love.graphics.getHeight() - superman.radius)
 		end
