@@ -15,17 +15,17 @@ case "$OUTPUT_DIR" in
 esac
 
 GAMES=(
-	"game-top-down-shooter"
-	"game-shooting-gallery"
+	"game-topgun-shooter"
+	"game-crazy-shotgun"
 	"game-lili-run"
 )
 
 game_size() {
 	case "$1" in
-		game-top-down-shooter)
+		game-topgun-shooter)
 			printf '960 540'
 			;;
-		game-shooting-gallery)
+		game-crazy-shotgun)
 			printf '800 600'
 			;;
 		game-lili-run)
@@ -182,7 +182,7 @@ Local test:
   npm run dev
 
 Open:
-  http://localhost:5173/games/top-down-shooter/
-  http://localhost:5173/games/shooting-gallery/
+  http://localhost:5173/games/topgun-shooter/
+  http://localhost:5173/games/crazy-shotgun/
   http://localhost:5173/games/lili-run/
 MSG

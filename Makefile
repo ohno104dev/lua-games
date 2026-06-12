@@ -1,4 +1,4 @@
-.PHONY: install dev build preview prepare-dist build-games build-top-down-shooter build-shooting-gallery build-lili-run clean
+.PHONY: install dev build preview prepare-dist build-games build-topgun-shooter build-crazy-shotgun build-lili-run clean
 
 install:
 	npm install
@@ -18,11 +18,11 @@ prepare-dist:
 build-games:
 	npm run build:games
 
-build-top-down-shooter:
-	npm run build:top-down-shooter
+build-topgun-shooter:
+	npm run build:topgun-shooter
 
-build-shooting-gallery:
-	npm run build:shooting-gallery
+build-crazy-shotgun:
+	npm run build:crazy-shotgun
 
 build-lili-run:
 	npm run build:lili-run

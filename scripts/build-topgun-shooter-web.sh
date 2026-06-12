@@ -2,4 +2,4 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-"$SCRIPT_DIR/build-love-web.sh" game-top-down-shooter
+"$SCRIPT_DIR/build-love-web.sh" game-topgun-shooter

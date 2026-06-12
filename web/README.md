@@ -13,14 +13,14 @@ Build every game:
 Build one game:
 
 ```bash
-./scripts/build-love-web.sh game-top-down-shooter
+./scripts/build-love-web.sh game-topgun-shooter
 ```
 
 Or use the per-game wrappers:
 
 ```bash
-npm run build:top-down-shooter
-npm run build:shooting-gallery
+npm run build:topgun-shooter
+npm run build:crazy-shotgun
 npm run build:lili-run
 ```
 
@@ -28,8 +28,8 @@ The same commands are also available through Make:
 
 ```bash
 make build-games
-make build-top-down-shooter
-make build-shooting-gallery
+make build-topgun-shooter
+make build-crazy-shotgun
 make build-lili-run
 ```
 
@@ -63,7 +63,7 @@ Build output directory: dist
 Embed each game from Vue with an iframe:
 
 ```html
-<iframe src="/games/top-down-shooter/"></iframe>
+<iframe src="/games/topgun-shooter/"></iframe>
 ```
 
 The final deployed structure intentionally does not include a root `index.html`.
@@ -72,11 +72,11 @@ It should include:
 ```text
 dist/
   _headers
-  games/top-down-shooter/index.html
-  games/top-down-shooter/top-down-shooter.love
-  games/top-down-shooter/player.js
-  games/top-down-shooter/11.5/love.js
-  games/top-down-shooter/11.5/love.wasm
+  games/topgun-shooter/index.html
+  games/topgun-shooter/topgun-shooter.love
+  games/topgun-shooter/player.js
+  games/topgun-shooter/11.5/love.js
+  games/topgun-shooter/11.5/love.wasm
 ```
 
 ## Server Headers
@@ -102,8 +102,8 @@ web/templates/game.html
 To override one game, create a matching template:
 
 ```text
-web/templates/game-top-down-shooter.html
-web/templates/game-shooting-gallery.html
+web/templates/game-topgun-shooter.html
+web/templates/game-crazy-shotgun.html
 web/templates/game-lili-run.html
 ```
 
