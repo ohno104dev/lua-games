@@ -36,7 +36,6 @@ function love.load()
 	love.mouse.setVisible(false)
 end
 
---  detal time
 function love.update(dt)
 	if timer > 0 then
 		timer = timer - dt
@@ -145,14 +144,18 @@ function handlePress(x, y)
 		end
 
 	elseif gameState == 1 then
-		gameState = 2
-		timer = 15
-		score = 0
-		scoreSubmitted = false
-		resetEntity(target)
-		resetEntity(pigeon)
-		resetEntity(superman)
+		startGame()
 	end
+end
+
+function startGame()
+	gameState = 2
+	timer = 15
+	score = 0
+	scoreSubmitted = false
+	resetEntity(target)
+	resetEntity(pigeon)
+	resetEntity(superman)
 end
 
 function distanceBetween(x1, y1, x2, y2)

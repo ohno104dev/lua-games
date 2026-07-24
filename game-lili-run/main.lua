@@ -524,7 +524,7 @@ local function drawCityBackdrop()
 		love.graphics.polygon("fill", x, skylineBaseY, x + 12, skylineBaseY - h, x + w, skylineBaseY)
 	end
 
-local function drawCrown(x, w, h)
+	local function drawCrown(x, w, h)
 		love.graphics.rectangle("fill", x, skylineBaseY - h + 22, w, h - 22)
 		love.graphics.polygon("fill", x, skylineBaseY - h + 22, x + 16, skylineBaseY - h, x + 32, skylineBaseY - h + 18)
 		love.graphics.polygon("fill", x + 20, skylineBaseY - h + 22, x + 34, skylineBaseY - h, x + 48, skylineBaseY - h + 18)
@@ -537,8 +537,6 @@ local function drawCrown(x, w, h)
 			local drawX = item.x + frontOffset + wrap
 			if item.kind == "rect" then
 				love.graphics.rectangle("fill", drawX, skylineBaseY - item.h, item.w, item.h)
-			elseif item.kind == "spire" then
-				drawSpire(drawX, item.w, item.h)
 			elseif item.kind == "tower" then
 				drawTower(drawX, item.w, item.h)
 			elseif item.kind == "shard" then
@@ -938,13 +936,7 @@ function love.keyreleased(key)
 end
 
 local function hasActiveTouches(touches)
-	for _, active in pairs(touches) do
-		if active then
-			return true
-		end
-	end
-
-	return false
+	return next(touches) ~= nil
 end
 
 local function isLeftControl(x)

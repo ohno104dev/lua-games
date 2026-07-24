@@ -72,37 +72,31 @@ function love.update(dt)
 		player.y = clamp(player.y + moveY * player.speed * dt, 0, love.graphics.getHeight())
 		updateTouchAim()
 	end
-	for i, u in ipairs(ufos) do
+	for _, u in ipairs(ufos) do
 		u.x = u.x + math.cos(ufoPlayerAngle(u)) * u.speed * dt
 		u.y = u.y + math.sin(ufoPlayerAngle(u)) * u.speed * dt
 
 		if distanceBetween(u.x, u.y, player.x, player.y) < 30 then
-			for i, u in ipairs(ufos) do
-				ufos[i] = nil
+			ufos = {}
+			bullets = {}
 
-				if player.damage  then
-					submitGameScore()
-					gameState = 1
-					player.x = love.graphics.getWidth() / 2
-					player.y = love.graphics.getHeight() / 2
-					player.damage = false
-				else
-					player.damage = true
-					player.speed = player.speed * 2
-				end
-
-
+			if player.damage then
+				endGame()
+			else
+				player.damage = true
+				player.speed = player.speed * 2
 			end
+			break
 		end
 	end
 
-	for i, b in ipairs(bullets) do
+	for _, b in ipairs(bullets) do
 		b.x = b.x + math.cos(b.direction) * b.speed * dt
 		b.y = b.y + math.sin(b.direction) * b.speed * dt
 	end
 
-	for i, u in ipairs(ufos) do
-		for j, b in ipairs(bullets) do
+	for _, u in ipairs(ufos) do
+		for _, b in ipairs(bullets) do
 			if distanceBetween(u.x, u.y, b.x, b.y) < 20 then
 				u.dead = true
 				b.dead = true
@@ -124,8 +118,12 @@ function love.update(dt)
 	end
 
 	for i =#bullets,1 , -1 do
-		local u = bullets[i]
-		if u.dead == true then
+		local b = bullets[i]
+		if b.dead == true
+			or b.x < 0
+			or b.y < 0
+			or b.x > love.graphics.getWidth()
+			or b.y > love.graphics.getHeight() then
 			table.remove(bullets, i)
 		end
 	end
@@ -134,7 +132,7 @@ function love.update(dt)
 		timer = timer - dt
 		if timer <= 0 then
 			swapnUfo()
-			maxTime = 0.9 * maxTime
+			maxTime = math.max(0.15, 0.9 * maxTime)
 			timer = maxTime
 		end
 	end
@@ -180,13 +178,6 @@ function love.draw()
 		love.graphics.draw(sprites.bullet, b.x, b.y, nil, 0.3, 0.3, sprites.bullet:getWidth()/2,sprites.bullet:getHeight()/2)
 	end
 
-	for i =#bullets, 1, -1 do
-		local b = bullets[i]
-		if b.x < 0 or b.y < 0 or b.x > love.graphics.getWidth() or b.y > love.graphics.getHeight() then
-			table.remove(bullets, i)
-		end
-	end
-
 	drawTouchControls()
 end
 
@@ -224,7 +215,6 @@ function playerMouseAngle()
 end
 
 function ufoPlayerAngle(ufo)
-	-- return math.atan2(player.y - ufo.y, player.x - ufo.x) - math.pi
 	return math.atan2(player.y - ufo.y, player.x - ufo.x)
 end
 
@@ -301,10 +291,7 @@ end
 
 function love.touchreleased(id)
 	if id == touchControls.moveId then
-		touchControls.moveId = nil
-		touchControls.dx = 0
-		touchControls.dy = 0
-		player.usingTouchAim = false
+		resetTouchControls()
 	end
 end
 
@@ -315,7 +302,7 @@ end
 
 function startGame()
 	gameState = 2
-	maxTime = 1.8
+	maxTime = 2.2
 	timer = maxTime
 	score = 0
 	scoreSubmitted = false
@@ -325,6 +312,29 @@ function startGame()
 	player.y = love.graphics.getHeight() / 2
 	player.aimX = player.x
 	player.aimY = player.y - 100
+	resetTouchControls()
+end
+
+function endGame()
+	submitGameScore()
+	gameState = 1
+	player.damage = false
+	player.speed = 260
+	player.x = love.graphics.getWidth() / 2
+	player.y = love.graphics.getHeight() / 2
+	player.aimX = player.x
+	player.aimY = player.y - 100
+	resetTouchControls()
+end
+
+function resetTouchControls()
+	touchControls.moveId = nil
+	touchControls.moveStartX = 0
+	touchControls.moveStartY = 0
+	touchControls.moveX = 0
+	touchControls.moveY = 0
+	touchControls.dx = 0
+	touchControls.dy = 0
 	player.usingTouchAim = false
 end
 

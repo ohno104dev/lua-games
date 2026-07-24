@@ -49,10 +49,6 @@
 
       .score-dialog {
         width: min(360px, 100%);
-        max-height: calc(100vh - 32px);
-        max-height: calc(100dvh - 32px);
-        overflow-y: auto;
-        overscroll-behavior: contain;
         border: 1px solid rgba(255, 255, 255, 0.22);
         border-radius: 8px;
         padding: 20px;
@@ -60,13 +56,6 @@
         color: #f8fafc;
         background: rgba(12, 18, 32, 0.92);
         box-shadow: 0 18px 46px rgba(0, 0, 0, 0.35);
-      }
-
-      .score-dialog h1 {
-        margin: 0 0 14px;
-        font-size: 24px;
-        font-weight: 700;
-        line-height: 1.15;
       }
 
       .score-dialog input {
@@ -171,14 +160,6 @@
         transform: translate(0, -50%);
       }
 
-      .final-score {
-        margin: 4px 0 10px;
-        color: #facc15;
-        font-size: 42px;
-        font-weight: 800;
-        line-height: 1;
-      }
-
       .score-results {
         --result-pad: clamp(10px, 2.7dvh, 20px);
         --result-gap: clamp(6px, 1.4dvh, 14px);
@@ -197,8 +178,9 @@
         width: min(440px, 100%);
         max-height: calc(100vh - 32px);
         max-height: calc(100dvh - 32px);
-        overflow: hidden;
+        overflow-x: hidden;
         overflow-y: auto;
+        overscroll-behavior: contain;
         border-color: rgba(250, 204, 21, 0.36);
         padding: var(--result-pad);
         color: #172033;
@@ -391,17 +373,14 @@
       }
 
       @media (max-height: 620px), (max-width: 520px) {
-        .score-overlay {
+        #scoreOverlay {
           align-items: start;
           padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
         }
 
-        .score-dialog {
+        .score-results {
           max-height: calc(100vh - 20px);
           max-height: calc(100dvh - 20px);
-        }
-
-        .score-results {
           width: min(390px, 100%);
         }
 
@@ -546,9 +525,7 @@
           window.dispatchEvent(event);
         }
 
-        function submitScore(score) {
-          var payload = scorePayload(score);
-
+        function sendScorePayload(payload) {
           dispatchScoreEvent("game-score-submit", payload);
 
           return fetch(apiEndpoint, {
@@ -557,6 +534,10 @@
             credentials: "same-origin",
             body: JSON.stringify(payload)
           });
+        }
+
+        function submitScore(score) {
+          return sendScorePayload(scorePayload(score));
         }
 
         function mockLeaderboard(payload) {
@@ -609,7 +590,7 @@
             var rank = document.createElement("span");
             var name = document.createElement("span");
             var score = document.createElement("span");
-            var actualRank = rows.indexOf(row) + 1;
+            var actualRank = index + 1;
 
             item.className = "leaderboard-row";
             if (actualRank <= 3) {
@@ -642,7 +623,7 @@
           submissionState.textContent = "Submitting score...";
           renderLeaderboard(mockLeaderboard(payload));
 
-          submitScore(payload.score)
+          sendScorePayload(payload)
             .then(function (response) {
               if (!response.ok) {
                 throw new Error("Score API returned " + response.status);
