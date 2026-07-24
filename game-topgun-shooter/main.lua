@@ -158,11 +158,7 @@ function love.draw()
 		love.graphics.printf({{0.8,0.8,0},"Tap the right side to shoot!"}, 0, 140, love.graphics.getWidth(), "center")
 	end
 	love.graphics.setFont(mainFont)
-	local scoreY = love.graphics.getHeight() - 100
-	if shouldDrawTouchControls() then
-		scoreY = math.max(150, love.graphics.getHeight() - getTouchControlRadius() * 2 - 95)
-	end
-	love.graphics.printf({{1,1,0},"Score: ".. score}, 0, scoreY, love.graphics.getWidth(), "center")
+	love.graphics.print("Score: " .. score, 8, 8)
 
 	for i, u in ipairs(ufos) do 
 		if u.kind == 1 then
