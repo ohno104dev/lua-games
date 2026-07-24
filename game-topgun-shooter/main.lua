@@ -35,6 +35,7 @@ function love.load()
 	}
 
 	score = 0
+	scoreSubmitted = false
 	gameState = 1
 	maxTime = 3
 	timer = maxTime
@@ -80,6 +81,7 @@ function love.update(dt)
 				ufos[i] = nil
 
 				if player.damage  then
+					submitGameScore()
 					gameState = 1
 					player.x = love.graphics.getWidth() / 2
 					player.y = love.graphics.getHeight() / 2
@@ -316,6 +318,7 @@ function startGame()
 	maxTime = 1.8
 	timer = maxTime
 	score = 0
+	scoreSubmitted = false
 	player.damage = false
 	player.speed = 260
 	player.x = love.graphics.getWidth() / 2
@@ -323,6 +326,18 @@ function startGame()
 	player.aimX = player.x
 	player.aimY = player.y - 100
 	player.usingTouchAim = false
+end
+
+function submitGameScore()
+	if scoreSubmitted then
+		return
+	end
+
+	scoreSubmitted = true
+
+	if love.js and love.js.eval then
+		love.js.eval("if(window.LuaGameScoreboard){window.LuaGameScoreboard.recordScore(" .. score .. ");}")
+	end
 end
 
 function isMoveZone(x, y)

@@ -232,6 +232,7 @@ local function resetGame()
 	state.obstacles = {}
 	state.decor = {}
 	state.score = 0
+	state.scoreSubmitted = false
 	state.bonusScore = 0
 	state.distance = 0
 	state.speed = START_SPEED
@@ -250,6 +251,18 @@ local function addDecor(x)
 		width = size,
 		height = love.math.random(1, 3) * PIXEL_SCALE,
 	}
+end
+
+local function submitGameScore()
+	if state.scoreSubmitted then
+		return
+	end
+
+	state.scoreSubmitted = true
+
+	if love.js and love.js.eval then
+		love.js.eval("if(window.LuaGameScoreboard){window.LuaGameScoreboard.recordScore(" .. state.score .. ");}")
+	end
 end
 
 local function spawnObstacle()
@@ -844,6 +857,7 @@ function love.update(dt)
 				else
 					state.gameOver = true
 					state.flashTimer = 0.15
+					submitGameScore()
 				end
 			end
 		end

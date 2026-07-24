@@ -10,6 +10,7 @@ function love.load()
 	score = 0
 	timer = 0
 	gameState = 1
+	scoreSubmitted = false
 
 	targetDt = 0
 	pigeonDt = 0
@@ -57,9 +58,10 @@ function love.update(dt)
 			supermanDt = 0
 		end
 	end
-	if timer < 0 then
+	if timer <= 0 and gameState == 2 then
 		timer = 0
 		gameState = 1
+		submitGameScore()
 	end
 end
 
@@ -146,6 +148,7 @@ function handlePress(x, y)
 		gameState = 2
 		timer = 15
 		score = 0
+		scoreSubmitted = false
 		resetEntity(target)
 		resetEntity(pigeon)
 		resetEntity(superman)
@@ -154,6 +157,18 @@ end
 
 function distanceBetween(x1, y1, x2, y2)
 	return math.sqrt((x2 - x1)^2 + (y2 - y1)^2)
+end
+
+function submitGameScore()
+	if scoreSubmitted then
+		return
+	end
+
+	scoreSubmitted = true
+
+	if love.js and love.js.eval then
+		love.js.eval("if(window.LuaGameScoreboard){window.LuaGameScoreboard.recordScore(" .. score .. ");}")
+	end
 end
 
 function updateLayout()

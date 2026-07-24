@@ -17,6 +17,7 @@
         touch-action: none;
         user-select: none;
         -webkit-user-select: none;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
 
       canvas {
@@ -30,9 +31,625 @@
         image-rendering: auto;
         touch-action: none;
       }
+
+      .score-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        box-sizing: border-box;
+        background: rgba(5, 7, 15, 0.58);
+      }
+
+      .score-overlay[hidden] {
+        display: none;
+      }
+
+      .score-dialog {
+        width: min(360px, 100%);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 8px;
+        padding: 20px;
+        box-sizing: border-box;
+        color: #f8fafc;
+        background: rgba(12, 18, 32, 0.92);
+        box-shadow: 0 18px 46px rgba(0, 0, 0, 0.35);
+      }
+
+      .score-dialog h1 {
+        margin: 0 0 14px;
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.15;
+      }
+
+      .score-dialog input {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 8px;
+        padding: 0 44px 0 12px;
+        box-sizing: border-box;
+        color: #f8fafc;
+        background: rgba(255, 255, 255, 0.08);
+        font: inherit;
+      }
+
+      .score-dialog button {
+        width: 100%;
+        min-height: 44px;
+        margin-top: 14px;
+        border: 0;
+        border-radius: 8px;
+        color: #111827;
+        background: #facc15;
+        font: inherit;
+        font-weight: 700;
+      }
+
+      .score-dialog p {
+        margin: 8px 0 0;
+        color: #cbd5e1;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .name-field {
+        position: relative;
+      }
+
+      .input-hint-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        z-index: 2;
+        display: grid;
+        width: 18px;
+        height: 18px;
+        place-items: center;
+        border: 1px solid #facc15;
+        border-radius: 50%;
+        box-sizing: border-box;
+        color: #facc15;
+        background: transparent;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1;
+        cursor: help;
+        transform: translateY(-50%);
+      }
+
+      .input-hint-icon:focus {
+        outline: 2px solid rgba(250, 204, 21, 0.46);
+        outline-offset: 2px;
+      }
+
+      .input-hint {
+        position: absolute;
+        left: calc(100% + 14px);
+        top: 50%;
+        z-index: 30;
+        width: 300px;
+        margin: 0;
+        border: 1px solid rgba(255, 255, 255, 0.20);
+        border-radius: 8px;
+        padding: 10px 12px 10px 28px;
+        box-sizing: border-box;
+        color: #cbd5e1;
+        background: rgba(15, 23, 42, 0.97);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34);
+        font-size: 13px;
+        line-height: 1.4;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-6px, -50%);
+        transition: opacity 120ms ease, transform 120ms ease;
+      }
+
+      .input-hint::before {
+        position: absolute;
+        left: -6px;
+        top: 50%;
+        width: 10px;
+        height: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.20);
+        border-left: 1px solid rgba(255, 255, 255, 0.20);
+        background: rgba(15, 23, 42, 0.97);
+        content: "";
+        transform: translateY(-50%) rotate(45deg);
+      }
+
+      .name-field:hover .input-hint,
+      .name-field:focus-within .input-hint {
+        opacity: 1;
+        transform: translate(0, -50%);
+      }
+
+      .final-score {
+        margin: 4px 0 10px;
+        color: #facc15;
+        font-size: 42px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .score-results {
+        width: min(440px, 100%);
+        overflow: hidden;
+        border-color: rgba(250, 204, 21, 0.36);
+        padding: 20px;
+        color: #172033;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 247, 214, 0.96)),
+          #fff7d6;
+      }
+
+      .score-results h1 {
+        margin: 0 0 14px;
+        color: #172033;
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: 0;
+        line-height: 1;
+        text-align: center;
+      }
+
+      .score-results p {
+        color: #5b6475;
+      }
+
+      .result-card {
+        position: relative;
+        overflow: hidden;
+        border: 2px solid #172033;
+        border-radius: 8px;
+        padding: 14px;
+        background: #fef3c7;
+        box-shadow: 5px 5px 0 #172033;
+      }
+
+      .result-player {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .result-name {
+        min-width: 0;
+        overflow: hidden;
+        color: #172033;
+        font-size: 22px;
+        font-weight: 800;
+        line-height: 1.1;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .result-score {
+        flex: 0 0 auto;
+        color: #0ea5e9;
+        font-size: 38px;
+        font-weight: 900;
+        line-height: 0.92;
+      }
+
+      .rank-badge {
+        display: grid;
+        min-width: 82px;
+        min-height: 30px;
+        margin: 12px auto 0;
+        place-items: center;
+        border: 2px solid #172033;
+        border-radius: 999px;
+        color: #172033;
+        background: #facc15;
+        box-shadow: 3px 3px 0 #172033;
+        font-size: 16px;
+        font-weight: 900;
+      }
+
+      .leaderboard {
+        display: grid;
+        gap: 8px;
+        margin: 14px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .leaderboard-row {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 9px;
+        min-height: 44px;
+        border: 2px solid rgba(23, 32, 51, 0.18);
+        border-radius: 8px;
+        padding: 6px 10px;
+        background: #ffffff;
+      }
+
+      .leaderboard-row.is-current {
+        border-color: #172033;
+        background: #d9f99d;
+        box-shadow: 3px 3px 0 #172033;
+      }
+
+      .leaderboard-row.is-top-1 {
+        border-color: #fbbf24;
+        background: #fef3c7;
+      }
+
+      .leaderboard-row.is-top-2 {
+        border-color: #94a3b8;
+        background: #f8fafc;
+      }
+
+      .leaderboard-row.is-top-3 {
+        border-color: #fb923c;
+        background: #ffedd5;
+      }
+
+      .leaderboard-rank {
+        display: grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        color: #ffffff;
+        background: #fde68a;
+        box-shadow: 0 2px 0 rgba(23, 32, 51, 0.28);
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .leaderboard-row.is-top-1 .leaderboard-rank {
+        background: #facc15;
+      }
+
+      .leaderboard-row.is-top-2 .leaderboard-rank {
+        background: #cbd5e1;
+      }
+
+      .leaderboard-row.is-top-3 .leaderboard-rank {
+        background: #fdba74;
+      }
+
+      .leaderboard-name {
+        min-width: 0;
+        overflow: hidden;
+        color: #172033;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .leaderboard-score {
+        color: #0f766e;
+        font-weight: 900;
+      }
+
+      .submission-state {
+        min-height: 20px;
+        text-align: center;
+      }
+
+      @media (max-width: 980px) {
+        .input-hint {
+          left: auto;
+          right: 0;
+          top: calc(100% + 10px);
+          width: min(300px, calc(100vw - 48px));
+          transform: translateY(-4px);
+        }
+
+        .input-hint::before {
+          left: auto;
+          right: 16px;
+          top: -6px;
+          border-top: 1px solid rgba(255, 255, 255, 0.20);
+          border-bottom: 0;
+          transform: rotate(45deg);
+        }
+
+        .name-field:hover .input-hint,
+        .name-field:focus-within .input-hint {
+          transform: translateY(0);
+        }
+      }
     </style>
   </head>
   <body>
-    <script src="./player.js?g=./{{LOVE_FILE}}&v={{LOVE_VERSION}}&n=1"></script>
+    <section class="score-overlay" id="playerOverlay">
+      <form class="score-dialog" id="playerForm">
+        <div class="name-field">
+          <input id="playerName" name="playerName" type="text" maxlength="24" autocomplete="nickname" aria-label="Player name" placeholder="Enter player name" aria-describedby="playerNameHint" required>
+          <span class="input-hint-icon" tabindex="0" aria-label="Name rules">!</span>
+          <ul class="input-hint" id="playerNameHint">
+            <li>Up to 24 characters.</li>
+            <li>Letters, numbers, spaces, _ and - only.</li>
+            <li>No emoji, line breaks or other symbols.</li>
+          </ul>
+        </div>
+        <button type="submit">Start</button>
+      </form>
+    </section>
+
+    <section class="score-overlay" id="scoreOverlay" aria-labelledby="scoreTitle" hidden>
+      <div class="score-dialog score-results">
+        <h1 id="scoreTitle">LEADERBOARD</h1>
+        <div class="result-card">
+          <div class="result-player">
+            <span class="result-name" id="finalPlayerName">Player</span>
+            <span class="result-score" id="finalScore">0</span>
+          </div>
+          <div class="rank-badge" id="finalRank">Rank #1</div>
+        </div>
+        <ol class="leaderboard" id="leaderboardList"></ol>
+        <p class="submission-state" id="submissionState">Submitting score...</p>
+        <button type="button" id="playAgain">Play Again</button>
+      </div>
+    </section>
+
+    <script>
+      (function () {
+        var gameId = "{{GAME_ID}}";
+        var loveFile = "{{LOVE_FILE}}";
+        var loveVersion = "{{LOVE_VERSION}}";
+        var apiEndpoint = window.GAME_SCORE_API_ENDPOINT || "/api/scores";
+        var playerOverlay = document.getElementById("playerOverlay");
+        var scoreOverlay = document.getElementById("scoreOverlay");
+        var playerForm = document.getElementById("playerForm");
+        var playerName = document.getElementById("playerName");
+        var finalPlayerName = document.getElementById("finalPlayerName");
+        var finalScore = document.getElementById("finalScore");
+        var finalRank = document.getElementById("finalRank");
+        var leaderboardList = document.getElementById("leaderboardList");
+        var submissionState = document.getElementById("submissionState");
+        var playAgain = document.getElementById("playAgain");
+        var playerScriptLoaded = false;
+        var storageKey = gameId + ".playerName";
+        var savedName = localStorage.getItem(storageKey) || "Player";
+        var mockScores = {
+          "topgun-shooter": [
+            { username: "Ace", score: 900 },
+            { username: "Mika", score: 800 },
+            { username: "Nina", score: 700 },
+            { username: "Kai", score: 600 },
+            { username: "Luna", score: 500 }
+          ],
+          "crazy-shotgun": [
+            { username: "Sunny", score: 3600 },
+            { username: "Bibi", score: 3100 },
+            { username: "Mochi", score: 2500 },
+            { username: "Taro", score: 2000 },
+            { username: "Pixel", score: 1400 }
+          ],
+          "lili-run": [
+            { username: "Lili", score: 1200 },
+            { username: "Neko", score: 1000 },
+            { username: "Poppy", score: 800 },
+            { username: "Yoyo", score: 600 },
+            { username: "Mimi", score: 300 }
+          ]
+        };
+
+        playerName.value = savedName;
+        setTimeout(function () {
+          playerName.focus();
+          playerName.select();
+        }, 0);
+
+        function sanitizePlayerName(value) {
+          var normalized = String(value || "").normalize("NFC");
+          var cleaned;
+
+          try {
+            cleaned = normalized.replace(/[^\p{L}\p{M}\p{N} _-]/gu, "");
+          } catch (error) {
+            cleaned = normalized.replace(/[^A-Za-z0-9 _\-\u00C0-\u024F\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]/g, "");
+          }
+
+          cleaned = cleaned
+            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          return Array.from(cleaned).slice(0, 24).join("");
+        }
+
+        function currentPlayerName() {
+          var name = sanitizePlayerName(playerName.value);
+          return name || "Player";
+        }
+
+        function loadPlayerScript() {
+          if (playerScriptLoaded) {
+            return;
+          }
+
+          playerScriptLoaded = true;
+          var script = document.createElement("script");
+          script.src = "./player.js?g=./" + loveFile + "&v=" + loveVersion + "&n=1";
+          document.body.appendChild(script);
+        }
+
+        function scorePayload(score) {
+          return {
+            game: gameId,
+            username: currentPlayerName(),
+            score: score,
+            playedAt: new Date().toISOString()
+          };
+        }
+
+        function dispatchScoreEvent(name, detail) {
+          var event;
+          if (typeof window.CustomEvent === "function") {
+            event = new CustomEvent(name, { detail: detail });
+          } else {
+            event = document.createEvent("CustomEvent");
+            event.initCustomEvent(name, false, false, detail);
+          }
+          window.dispatchEvent(event);
+        }
+
+        function submitScore(score) {
+          var payload = scorePayload(score);
+
+          dispatchScoreEvent("game-score-submit", payload);
+
+          return fetch(apiEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify(payload)
+          });
+        }
+
+        function mockLeaderboard(payload) {
+          return (mockScores[gameId] || mockScores["crazy-shotgun"])
+            .concat([{ username: payload.username, score: payload.score, current: true }])
+            .sort(function (a, b) {
+              return b.score - a.score;
+            });
+        }
+
+        function formatScore(score) {
+          return Number(score || 0).toLocaleString("en-US");
+        }
+
+        function normalizeLeaderboard(data, payload) {
+          var rows = Array.isArray(data) ? data : data && data.leaderboard;
+          if (!Array.isArray(rows)) {
+            return mockLeaderboard(payload);
+          }
+
+          var normalizedRows = rows
+            .map(function (row) {
+              return {
+                username: sanitizePlayerName(row.username || row.name || "Player"),
+                score: Number(row.score) || 0,
+                current: Boolean(row.current)
+              };
+            });
+
+          if (!normalizedRows.some(function (row) { return row.current; })) {
+            normalizedRows.push({ username: payload.username, score: payload.score, current: true });
+          }
+
+          return normalizedRows.sort(function (a, b) {
+            return b.score - a.score;
+          });
+        }
+
+        function renderLeaderboard(rows) {
+          var currentIndex = rows.findIndex(function (row) {
+            return row.current;
+          });
+          var displayRows = rows.slice(0, 5);
+
+          finalRank.textContent = "Rank " + (currentIndex + 1);
+          leaderboardList.innerHTML = "";
+
+          displayRows.forEach(function (row, index) {
+            var item = document.createElement("li");
+            var rank = document.createElement("span");
+            var name = document.createElement("span");
+            var score = document.createElement("span");
+            var actualRank = rows.indexOf(row) + 1;
+
+            item.className = "leaderboard-row";
+            if (actualRank <= 3) {
+              item.className += " is-top-" + actualRank;
+            }
+            if (row.current) {
+              item.className += " is-current";
+            }
+            rank.className = "leaderboard-rank";
+            name.className = "leaderboard-name";
+            score.className = "leaderboard-score";
+
+            rank.textContent = String(actualRank);
+            name.textContent = row.username;
+            score.textContent = formatScore(row.score);
+
+            item.appendChild(rank);
+            item.appendChild(name);
+            item.appendChild(score);
+            leaderboardList.appendChild(item);
+          });
+        }
+
+        function recordScore(score) {
+          var payload = scorePayload(score);
+
+          finalPlayerName.textContent = payload.username;
+          finalScore.textContent = formatScore(score);
+          scoreOverlay.hidden = false;
+          submissionState.textContent = "Submitting score...";
+          renderLeaderboard(mockLeaderboard(payload));
+
+          submitScore(payload.score)
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error("Score API returned " + response.status);
+              }
+              return response.json().catch(function () {
+                return null;
+              });
+            })
+            .then(function (data) {
+              if (data) {
+                renderLeaderboard(normalizeLeaderboard(data, payload));
+              }
+              submissionState.textContent = "Score submitted.";
+            })
+            .catch(function (error) {
+              console.warn(error);
+              submissionState.textContent = "API leaderboard is not connected yet.";
+            });
+        }
+
+        window.LuaGameScoreboard = {
+          apiEndpoint: apiEndpoint,
+          gameId: gameId,
+          getPlayerName: currentPlayerName,
+          recordScore: recordScore,
+          submitScore: submitScore
+        };
+
+        window.CrazyShotgunScoreboard = window.LuaGameScoreboard;
+
+        playerForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          playerName.value = currentPlayerName();
+          localStorage.setItem(storageKey, playerName.value);
+          playerOverlay.hidden = true;
+          loadPlayerScript();
+          window.focus();
+        });
+
+        playerName.addEventListener("input", function () {
+          var sanitized = sanitizePlayerName(playerName.value);
+          if (playerName.value !== sanitized) {
+            playerName.value = sanitized;
+          }
+        });
+
+        playAgain.addEventListener("click", function () {
+          scoreOverlay.hidden = true;
+          window.focus();
+        });
+
+        window.addEventListener("love-game-score", function (event) {
+          recordScore(Number(event.detail && event.detail.score) || 0);
+        });
+      })();
+    </script>
   </body>
 </html>
