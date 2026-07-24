@@ -5,5 +5,5 @@ function love.conf(t)
 	t.window.title = "Lili Run"
 	t.window.width = 960
 	t.window.height = 540
-	t.window.resizable = false
+	t.window.resizable = true
 end

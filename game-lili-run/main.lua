@@ -24,6 +24,12 @@ local PLAYER_GROUND_DRAW_OFFSET = 10
 local state = {}
 local fonts = {}
 local canvas
+local controls = {
+	mouseCrouch = false,
+	mouseJump = false,
+	crouchTouches = {},
+	jumpTouches = {},
+}
 local GROUND_LINE_COLOR = { 0.88, 0.88, 0.88 }
 local ROAD_FILL_COLOR = { 0.36, 0.50, 0.30 }
 local ROAD_PEBBLE_COLOR = { 0.24, 0.36, 0.20 }
@@ -73,6 +79,27 @@ local function currentPalette()
 	palette.groundAccent = GROUND_LINE_COLOR
 
 	return palette, nightBlend
+end
+
+local function updateCanvas(width, height)
+	SCREEN_WIDTH = math.max(320, width or love.graphics.getWidth())
+	SCREEN_HEIGHT = math.max(240, height or love.graphics.getHeight())
+	VIRTUAL_WIDTH = SCREEN_WIDTH / PIXEL_SCALE
+	VIRTUAL_HEIGHT = SCREEN_HEIGHT / PIXEL_SCALE
+
+	if canvas then
+		canvas:release()
+	end
+
+	canvas = love.graphics.newCanvas(VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+	canvas:setFilter("nearest", "nearest")
+end
+
+local function resetControls()
+	controls.mouseCrouch = false
+	controls.mouseJump = false
+	controls.crouchTouches = {}
+	controls.jumpTouches = {}
 end
 
 local function fileExists(path)
@@ -181,6 +208,8 @@ local function updateAnimation(animation, dt, speedFactor)
 end
 
 local function resetGame()
+	resetControls()
+
 	state.player = {
 		x = PLAYER_X,
 		y = SCREEN_HEIGHT - GROUND_HEIGHT,
@@ -670,6 +699,15 @@ local function drawHud()
 	love.graphics.print(string.format("Score %05d", state.score), 26, 22)
 end
 
+local function isMobileOrTabletLayout()
+	local shortSide = math.min(SCREEN_WIDTH, SCREEN_HEIGHT)
+	local longSide = math.max(SCREEN_WIDTH, SCREEN_HEIGHT)
+
+	return SCREEN_HEIGHT > SCREEN_WIDTH
+		or (SCREEN_WIDTH <= 1024 and SCREEN_HEIGHT >= 700)
+		or (shortSide <= 1024 and longSide <= 1366)
+end
+
 local function drawCenterMessage()
 	local palette = currentPalette()
 	love.graphics.setColor(palette.text)
@@ -678,20 +716,26 @@ local function drawCenterMessage()
 	if state.gameOver then
 		love.graphics.printf("Lili fell behind", 0, 126, SCREEN_WIDTH, "center")
 		love.graphics.setFont(fonts.small)
-		love.graphics.printf("Press jump to restart", 0, 186, SCREEN_WIDTH, "center")
+		if isMobileOrTabletLayout() then
+			love.graphics.printf("Tap right side to restart", 0, 186, SCREEN_WIDTH, "center")
+		else
+			love.graphics.printf("Press jump to restart", 0, 186, SCREEN_WIDTH, "center")
+		end
 	elseif not state.started then
 		love.graphics.printf("Lili Run", 0, 126, SCREEN_WIDTH, "center")
 		love.graphics.setFont(fonts.small)
-		love.graphics.printf("Jump with space/up, crouch with down/s", 0, 186, SCREEN_WIDTH, "center")
+		if isMobileOrTabletLayout() then
+			love.graphics.printf("Left side crouch, right side jump", 0, 186, SCREEN_WIDTH, "center")
+		else
+			love.graphics.printf("Jump with space/up, crouch with down/s", 0, 186, SCREEN_WIDTH, "center")
+		end
 	end
 end
 
 function love.load()
-	love.window.setMode(SCREEN_WIDTH, SCREEN_HEIGHT, { resizable = false })
 	love.math.setRandomSeed(os.time())
 	love.graphics.setDefaultFilter("nearest", "nearest")
-	canvas = love.graphics.newCanvas(VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
-	canvas:setFilter("nearest", "nearest")
+	updateCanvas(love.graphics.getWidth(), love.graphics.getHeight())
 
 	fonts.title = love.graphics.newFont(12 * PIXEL_SCALE)
 	fonts.score = love.graphics.newFont(28)
@@ -847,6 +891,22 @@ function love.draw()
 	drawCenterMessage()
 end
 
+function love.resize(width, height)
+	local oldGroundY = SCREEN_HEIGHT - GROUND_HEIGHT
+	local playerWasOnGround = state.player and state.player.onGround
+
+	updateCanvas(width, height)
+
+	if state.player then
+		state.player.x = math.min(state.player.x, SCREEN_WIDTH - state.player.width)
+		if playerWasOnGround or state.player.y >= oldGroundY - 1 then
+			state.player.y = SCREEN_HEIGHT - GROUND_HEIGHT
+		else
+			state.player.y = math.min(state.player.y, SCREEN_HEIGHT - GROUND_HEIGHT)
+		end
+	end
+end
+
 function love.keypressed(key)
 	if key == "space" or key == "up" or key == "w" then
 		tryJump()
@@ -863,22 +923,76 @@ function love.keyreleased(key)
 	end
 end
 
-function love.mousepressed(_, _, button)
+local function hasActiveTouches(touches)
+	for _, active in pairs(touches) do
+		if active then
+			return true
+		end
+	end
+
+	return false
+end
+
+local function isLeftControl(x)
+	return x < SCREEN_WIDTH * 0.5
+end
+
+function love.mousepressed(x, _, button, istouch)
+	if istouch then
+		return
+	end
+
 	if button == 1 then
+		if isMobileOrTabletLayout() and isLeftControl(x) then
+			controls.mouseCrouch = true
+			setCrouch(true)
+		else
+			controls.mouseJump = true
+			tryJump()
+		end
+	end
+end
+
+function love.mousereleased(_, _, button, istouch)
+	if istouch then
+		return
+	end
+
+	if button == 1 then
+		if controls.mouseCrouch then
+			controls.mouseCrouch = false
+			if not hasActiveTouches(controls.crouchTouches) then
+				setCrouch(false)
+			end
+		end
+
+		if controls.mouseJump then
+			controls.mouseJump = false
+			releaseJump()
+		end
+	end
+end
+
+function love.touchpressed(id, x)
+	if isMobileOrTabletLayout() and isLeftControl(x) then
+		controls.crouchTouches[id] = true
+		setCrouch(true)
+	else
+		controls.jumpTouches[id] = true
 		tryJump()
 	end
 end
 
-function love.mousereleased(_, _, button)
-	if button == 1 then
+function love.touchreleased(id)
+	if controls.crouchTouches[id] then
+		controls.crouchTouches[id] = nil
+		if not controls.mouseCrouch and not hasActiveTouches(controls.crouchTouches) then
+			setCrouch(false)
+		end
+	end
+
+	if controls.jumpTouches[id] then
+		controls.jumpTouches[id] = nil
 		releaseJump()
 	end
-end
-
-function love.touchpressed()
-	tryJump()
-end
-
-function love.touchreleased()
-	releaseJump()
 end

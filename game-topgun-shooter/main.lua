@@ -14,12 +14,25 @@ function love.load()
 	player.y = love.graphics.getHeight() / 2
 	player.speed = 260
 	player.damage = false
+	player.aimX = player.x
+	player.aimY = player.y - 100
+	player.usingTouchAim = false
 
 	mainFont = love.graphics.newFont(30)
 	subFont = love.graphics.newFont(15)
 
 	ufos = {}
 	bullets = {}
+	touchControls = {
+		moveId = nil,
+		moveStartX = 0,
+		moveStartY = 0,
+		moveX = 0,
+		moveY = 0,
+		dx = 0,
+		dy = 0,
+		radius = 58
+	}
 
 	score = 0
 	gameState = 1
@@ -29,18 +42,34 @@ end
 
 function love.update(dt)
 	if gameState == 2 then
-		if love.keyboard.isDown("d") and player. x < love.graphics.getWidth() then
-			player.x = player.x + player.speed * dt
+		local moveX = 0
+		local moveY = 0
+
+		if love.keyboard.isDown("d") then
+			moveX = moveX + 1
 		end
-		if love.keyboard.isDown("a") and player.x > 0 then
-			player.x = player.x - player.speed * dt
+		if love.keyboard.isDown("a") then
+			moveX = moveX - 1
 		end
-		if love.keyboard.isDown("w") and player.y > 0 then
-			player.y = player.y - player.speed * dt
+		if love.keyboard.isDown("s") then
+			moveY = moveY + 1
 		end
-		if love.keyboard.isDown("s") and player.y < love.graphics.getHeight() then
-			player.y = player.y + player.speed * dt
+		if love.keyboard.isDown("w") then
+			moveY = moveY - 1
 		end
+
+		moveX = moveX + touchControls.dx
+		moveY = moveY + touchControls.dy
+
+		local moveLength = math.sqrt(moveX * moveX + moveY * moveY)
+		if moveLength > 1 then
+			moveX = moveX / moveLength
+			moveY = moveY / moveLength
+		end
+
+		player.x = clamp(player.x + moveX * player.speed * dt, 0, love.graphics.getWidth())
+		player.y = clamp(player.y + moveY * player.speed * dt, 0, love.graphics.getHeight())
+		updateTouchAim()
 	end
 	for i, u in ipairs(ufos) do
 		u.x = u.x + math.cos(ufoPlayerAngle(u)) * u.speed * dt
@@ -123,13 +152,17 @@ function love.draw()
 
 	if gameState == 1 then
 		love.graphics.setFont(mainFont)
-		love.graphics.printf({{1,1,0},"Click anywhere to begin!"}, 0, 50, love.graphics.getWidth(), "center")
+		love.graphics.printf({{1,1,0},"Click or tap anywhere to begin!"}, 0, 50, love.graphics.getWidth(), "center")
 		love.graphics.setFont(subFont)
-		love.graphics.printf({{0.8,0.8,0},"A,W,S,D to move!"}, 0, 100, love.graphics.getWidth(), "center")
-		love.graphics.printf({{0.8,0.8,0},"right click to shoot!"}, 0, 120, love.graphics.getWidth(), "center")
+		love.graphics.printf({{0.8,0.8,0},"A,W,S,D to move!"}, 0, 120, love.graphics.getWidth(), "center")
+		love.graphics.printf({{0.8,0.8,0},"Tap the right side to shoot!"}, 0, 140, love.graphics.getWidth(), "center")
 	end
 	love.graphics.setFont(mainFont)
-	love.graphics.printf({{1,1,0},"Score: ".. score}, 0, love.graphics.getHeight() - 100, love.graphics.getWidth(), "center")
+	local scoreY = love.graphics.getHeight() - 100
+	if shouldDrawTouchControls() then
+		scoreY = math.max(150, love.graphics.getHeight() - getTouchControlRadius() * 2 - 95)
+	end
+	love.graphics.printf({{1,1,0},"Score: ".. score}, 0, scoreY, love.graphics.getWidth(), "center")
 
 	for i, u in ipairs(ufos) do 
 		if u.kind == 1 then
@@ -155,6 +188,8 @@ function love.draw()
 			table.remove(bullets, i)
 		end
 	end
+
+	drawTouchControls()
 end
 
 function love.keypressed(key)
@@ -163,21 +198,31 @@ function love.keypressed(key)
 	end
 end
 
-function love.mousepressed(x, y, button)
+function love.mousepressed(x, y, button, istouch)
+	if istouch then
+		return
+	end
+
 	if button == 1 and gameState == 2 then
-		spawnBullet()
+		spawnBullet(x, y)
 	elseif button == 1 and gameState == 1 then
-		gameState = 2
-		maxTime = 1.8
-		timer = maxTime
-		score = 0
-		player.damage = false
-		player.speed = 260
+		startGame()
+	end
+end
+
+function love.mousemoved(x, y, dx, dy, istouch)
+	if istouch then
+		return
+	end
+
+	if not player.usingTouchAim then
+		player.aimX = x
+		player.aimY = y
 	end
 end
 
 function playerMouseAngle()
-	return math.atan2(player.y - love.mouse.getY(), player.x - love.mouse.getX()) + math.pi
+	return math.atan2(player.y - player.aimY, player.x - player.aimX) + math.pi
 end
 
 function ufoPlayerAngle(ufo)
@@ -211,7 +256,10 @@ function swapnUfo()
 	table.insert(ufos, ufo)
 end
 
-function spawnBullet()
+function spawnBullet(targetX, targetY)
+	player.aimX = targetX or player.aimX
+	player.aimY = targetY or player.aimY
+
 	local bullet = {}
 	bullet.x = player.x
 	bullet.y = player.y
@@ -223,4 +271,158 @@ end
 
 function distanceBetween(x1, y1, x2, y2)
 	return math.sqrt((x2 - x1)^2 + (y2 - y1)^2)
+end
+
+function love.touchpressed(id, x, y)
+	if gameState == 1 then
+		startGame()
+		return
+	end
+
+	if gameState ~= 2 then
+		return
+	end
+
+	if isMoveZone(x, y) and touchControls.moveId == nil then
+		touchControls.moveId = id
+		touchControls.moveStartX = x
+		touchControls.moveStartY = y
+		touchControls.moveX = x
+		touchControls.moveY = y
+		updateMoveTouch(x, y)
+	elseif x >= love.graphics.getWidth() * 0.5 then
+		spawnBullet()
+	end
+end
+
+function love.touchmoved(id, x, y)
+	if id == touchControls.moveId then
+		updateMoveTouch(x, y)
+	end
+end
+
+function love.touchreleased(id)
+	if id == touchControls.moveId then
+		touchControls.moveId = nil
+		touchControls.dx = 0
+		touchControls.dy = 0
+		player.usingTouchAim = false
+	end
+end
+
+function love.resize(width, height)
+	player.x = clamp(player.x, 0, width)
+	player.y = clamp(player.y, 0, height)
+end
+
+function startGame()
+	gameState = 2
+	maxTime = 1.8
+	timer = maxTime
+	score = 0
+	player.damage = false
+	player.speed = 260
+	player.x = love.graphics.getWidth() / 2
+	player.y = love.graphics.getHeight() / 2
+	player.aimX = player.x
+	player.aimY = player.y - 100
+	player.usingTouchAim = false
+end
+
+function isMoveZone(x, y)
+	return shouldDrawTouchControls()
+		and x <= love.graphics.getWidth() * 0.45
+		and y >= love.graphics.getHeight() * 0.45
+end
+
+function updateMoveTouch(x, y)
+	local maxDistance = touchControls.radius
+	local dx = x - touchControls.moveStartX
+	local dy = y - touchControls.moveStartY
+	local distance = math.sqrt(dx * dx + dy * dy)
+
+	if distance > maxDistance then
+		dx = dx / distance * maxDistance
+		dy = dy / distance * maxDistance
+	end
+
+	touchControls.moveX = touchControls.moveStartX + dx
+	touchControls.moveY = touchControls.moveStartY + dy
+	touchControls.dx = dx / maxDistance
+	touchControls.dy = dy / maxDistance
+	updateTouchAim()
+end
+
+function updateTouchAim()
+	if touchControls.moveId == nil then
+		return
+	end
+
+	local aimLength = math.sqrt(touchControls.dx * touchControls.dx + touchControls.dy * touchControls.dy)
+	if aimLength < 0.16 then
+		return
+	end
+
+	local aimDistance = 140
+	player.aimX = player.x + touchControls.dx / aimLength * aimDistance
+	player.aimY = player.y + touchControls.dy / aimLength * aimDistance
+	player.usingTouchAim = true
+end
+
+function drawTouchControls()
+	if not shouldDrawTouchControls() then
+		return
+	end
+
+	local width = love.graphics.getWidth()
+	local height = love.graphics.getHeight()
+	local radius = getTouchControlRadius()
+	local centerX = math.max(radius + 24, width * 0.18)
+	local centerY = height - radius - 28
+	local knobX = centerX
+	local knobY = centerY
+
+	touchControls.radius = radius
+
+	if touchControls.moveId ~= nil then
+		centerX = touchControls.moveStartX
+		centerY = touchControls.moveStartY
+		knobX = touchControls.moveX
+		knobY = touchControls.moveY
+	end
+
+	love.graphics.setColor(1, 1, 1, 0.18)
+	love.graphics.circle("fill", centerX, centerY, radius)
+	love.graphics.setColor(1, 1, 1, 0.42)
+	love.graphics.setLineWidth(3)
+	love.graphics.circle("line", centerX, centerY, radius)
+	love.graphics.setColor(1, 1, 0.2, 0.55)
+	love.graphics.circle("fill", knobX, knobY, radius * 0.38)
+
+	love.graphics.setColor(1, 1, 1, 0.22)
+	love.graphics.circle("fill", width - radius - 34, height - radius - 28, radius * 0.72)
+	love.graphics.setColor(1, 0.85, 0.2, 0.55)
+	love.graphics.circle("line", width - radius - 34, height - radius - 28, radius * 0.72)
+	love.graphics.setLineWidth(1)
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+function shouldDrawTouchControls()
+	local width = love.graphics.getWidth()
+	local height = love.graphics.getHeight()
+	local shortSide = math.min(width, height)
+	local longSide = math.max(width, height)
+	local aspect = longSide / shortSide
+
+	return height > width
+		or (shortSide <= 500 and longSide <= 950)
+		or (shortSide >= 720 and shortSide <= 1024 and longSide <= 1368 and aspect <= 1.65)
+end
+
+function getTouchControlRadius()
+	return math.min(64, math.max(42, math.min(love.graphics.getWidth(), love.graphics.getHeight()) * 0.09))
+end
+
+function clamp(value, minValue, maxValue)
+	return math.max(minValue, math.min(value, maxValue))
 end
