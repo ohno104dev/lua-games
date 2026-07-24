@@ -38,7 +38,7 @@
         z-index: 20;
         display: grid;
         place-items: center;
-        padding: 24px;
+        padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
         box-sizing: border-box;
         background: rgba(5, 7, 15, 0.58);
       }
@@ -49,6 +49,10 @@
 
       .score-dialog {
         width: min(360px, 100%);
+        max-height: calc(100vh - 32px);
+        max-height: calc(100dvh - 32px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
         border: 1px solid rgba(255, 255, 255, 0.22);
         border-radius: 8px;
         padding: 20px;
@@ -176,10 +180,27 @@
       }
 
       .score-results {
+        --result-pad: clamp(10px, 2.7dvh, 20px);
+        --result-gap: clamp(6px, 1.4dvh, 14px);
+        --result-title-size: clamp(20px, 4dvh, 28px);
+        --result-card-pad: clamp(9px, 2dvh, 14px);
+        --result-name-size: clamp(17px, 3.1dvh, 22px);
+        --result-score-size: clamp(28px, 5.6dvh, 38px);
+        --result-rank-height: clamp(26px, 4.6dvh, 30px);
+        --result-rank-size: clamp(13px, 2.5dvh, 16px);
+        --result-row-height: clamp(34px, 7.2dvh, 44px);
+        --result-row-pad-y: clamp(4px, 1dvh, 6px);
+        --result-row-pad-x: clamp(8px, 2dvh, 10px);
+        --result-rank-dot: clamp(24px, 4.8dvh, 28px);
+        --result-row-font: clamp(13px, 2.35dvh, 16px);
+        --result-button-height: clamp(38px, 7dvh, 44px);
         width: min(440px, 100%);
+        max-height: calc(100vh - 32px);
+        max-height: calc(100dvh - 32px);
         overflow: hidden;
+        overflow-y: auto;
         border-color: rgba(250, 204, 21, 0.36);
-        padding: 20px;
+        padding: var(--result-pad);
         color: #172033;
         background:
           linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 247, 214, 0.96)),
@@ -187,9 +208,9 @@
       }
 
       .score-results h1 {
-        margin: 0 0 14px;
+        margin: 0 0 var(--result-gap);
         color: #172033;
-        font-size: 28px;
+        font-size: var(--result-title-size);
         font-weight: 900;
         letter-spacing: 0;
         line-height: 1;
@@ -205,7 +226,7 @@
         overflow: hidden;
         border: 2px solid #172033;
         border-radius: 8px;
-        padding: 14px;
+        padding: var(--result-card-pad);
         background: #fef3c7;
         box-shadow: 5px 5px 0 #172033;
       }
@@ -221,7 +242,7 @@
         min-width: 0;
         overflow: hidden;
         color: #172033;
-        font-size: 22px;
+        font-size: var(--result-name-size);
         font-weight: 800;
         line-height: 1.1;
         text-overflow: ellipsis;
@@ -231,7 +252,7 @@
       .result-score {
         flex: 0 0 auto;
         color: #0ea5e9;
-        font-size: 38px;
+        font-size: var(--result-score-size);
         font-weight: 900;
         line-height: 0.92;
       }
@@ -239,22 +260,22 @@
       .rank-badge {
         display: grid;
         min-width: 82px;
-        min-height: 30px;
-        margin: 12px auto 0;
+        min-height: var(--result-rank-height);
+        margin: var(--result-gap) auto 0;
         place-items: center;
         border: 2px solid #172033;
         border-radius: 999px;
         color: #172033;
         background: #facc15;
         box-shadow: 3px 3px 0 #172033;
-        font-size: 16px;
+        font-size: var(--result-rank-size);
         font-weight: 900;
       }
 
       .leaderboard {
         display: grid;
-        gap: 8px;
-        margin: 14px 0 0;
+        gap: clamp(5px, 1.2dvh, 8px);
+        margin: var(--result-gap) 0 0;
         padding: 0;
         list-style: none;
       }
@@ -264,10 +285,10 @@
         grid-template-columns: 38px minmax(0, 1fr) auto;
         align-items: center;
         gap: 9px;
-        min-height: 44px;
+        min-height: var(--result-row-height);
         border: 2px solid rgba(23, 32, 51, 0.18);
         border-radius: 8px;
-        padding: 6px 10px;
+        padding: var(--result-row-pad-y) var(--result-row-pad-x);
         background: #ffffff;
       }
 
@@ -294,8 +315,8 @@
 
       .leaderboard-rank {
         display: grid;
-        width: 28px;
-        height: 28px;
+        width: var(--result-rank-dot);
+        height: var(--result-rank-dot);
         place-items: center;
         border: 2px solid #ffffff;
         border-radius: 50%;
@@ -322,6 +343,7 @@
         min-width: 0;
         overflow: hidden;
         color: #172033;
+        font-size: var(--result-row-font);
         font-weight: 800;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -329,12 +351,19 @@
 
       .leaderboard-score {
         color: #0f766e;
+        font-size: var(--result-row-font);
         font-weight: 900;
       }
 
       .submission-state {
-        min-height: 20px;
+        min-height: clamp(16px, 3dvh, 20px);
+        margin-top: clamp(5px, 1.1dvh, 8px);
         text-align: center;
+      }
+
+      .score-results button {
+        min-height: var(--result-button-height);
+        margin-top: clamp(8px, 1.8dvh, 14px);
       }
 
       @media (max-width: 980px) {
@@ -358,6 +387,26 @@
         .name-field:hover .input-hint,
         .name-field:focus-within .input-hint {
           transform: translateY(0);
+        }
+      }
+
+      @media (max-height: 620px), (max-width: 520px) {
+        .score-overlay {
+          align-items: start;
+          padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+        }
+
+        .score-dialog {
+          max-height: calc(100vh - 20px);
+          max-height: calc(100dvh - 20px);
+        }
+
+        .score-results {
+          width: min(390px, 100%);
+        }
+
+        .leaderboard-row {
+          grid-template-columns: 32px minmax(0, 1fr) auto;
         }
       }
     </style>
